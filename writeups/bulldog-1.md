@@ -3,12 +3,17 @@
 
 ### enumeration
 Since the machine's ip is already shown at its login page, I decide to check it on my browser to see if there's any useful information in it:
+
 ![bulldog 1](./images/bulldog-1.png)
+
 But there isn't relevant info on the page (even after reading the source code) nor in the "Public Notice" link above the bulldog photo (except for text, that is, which could be used in CeWL if it comes to that). Running exiftoon on the photo also doesn't give me anything useful, just the cheeky nod:
+
 ```bash
 Comment                         : Not a part of the VM, he's just cute :3 https://www.pexels.com/photo/white-and-brown-bulldog-on-brown-wood-planks-160748/
 ```
+
 I then proceed to run nmap on all ports:
+
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
 └─$ nmap -p- -T4 -oA nmap_info_allports 192.168.56.117
@@ -23,7 +28,9 @@ PORT     STATE SERVICE
 
 Nmap done: 1 IP address (1 host up) scanned in 0.87 seconds
 ```
+
 After that, detailed nmap on the detected ports:
+
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
 └─$ nmap -p 23,80,8080 -sC -sV -oA nmap_info_detailed 192.168.56.117
@@ -49,7 +56,9 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 17.03 seconds
 zsh: segmentation fault  nmap -p 23,80,8080 -sC -sV -oA nmap_info_detailed 192.168.56.117
 ```
+
 The port 8080 is serving the same thing as the port 80, so I proceed to use gobuster to bruteforce probable directories.
+
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
 └─$ gobuster dir -u http://192.168.56.117/ -o gobuster_info -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,txt,php
@@ -79,17 +88,33 @@ Progress: 63900 / 882244 (7.24%)                                                
 2022/10/26 11:45:21 Finished
 ===============================================================
 ```
+
 The /dev/ directory found by gobuster seems to have interesting information on it. At surface level, this is what it looks like:
 ![bulldog 2](./images/bulldog-2.png)
-But when viewing the page source, we find the following commented out:
+
+And when trying to go to the "Web-Shell" link, what I get is:
+
+![bulldog 3](./images/bulldog-3.png)
+
+Meaning that i must authenticate (probably happens in the /admin/ directory found by gobuster) in order to access this page.
+
+When viewing the /dev/ page source, I find the following commented out:
+
 ```html
-    <!--Need these password hashes for testing. Django's default is too complex-->
-	<!--We'll remove these in prod. It's not like a hacker can do anything with a hash-->
-	Team Lead: alan@bulldogindustries.com<br><!--6515229daf8dbdc8b89fed2e60f107433da5f2cb-->
-	Back-up Team Lead: william@bulldogindustries.com<br><br><!--38882f3b81f8f2bc47d9f3119155b05f954892fb-->
-	Front End: malik@bulldogindustries.com<br><!--c6f7e34d5d08ba4a40dd5627508ccb55b425e279-->
-	Front End: kevin@bulldogindustries.com<br><br><!--0e6ae9fe8af1cd4192865ac97ebf6bda414218a9-->
-	Back End: ashley@bulldogindustries.com<br><!--553d917a396414ab99785694afd51df3a8a8a3e0-->
-	Back End: nick@bulldogindustries.com<br><br><!--ddf45997a7e18a25ad5f5cf222da64814dd060d5-->
-	Database: sarah@bulldogindustries.com<br><!--d8b8dd5e7f000b8dea26ef8428caf38c04466b3e-->
+<!--Need these password hashes for testing. Django's default is too complex-->
+<!--We'll remove these in prod. It's not like a hacker can do anything with a hash-->
+Team Lead: alan@bulldogindustries.com<br><!--6515229daf8dbdc8b89fed2e60f107433da5f2cb-->
+Back-up Team Lead: william@bulldogindustries.com<br><br><!--38882f3b81f8f2bc47d9f3119155b05f954892fb-->
+Front End: malik@bulldogindustries.com<br><!--c6f7e34d5d08ba4a40dd5627508ccb55b425e279-->
+Front End: kevin@bulldogindustries.com<br><br><!--0e6ae9fe8af1cd4192865ac97ebf6bda414218a9-->
+Back End: ashley@bulldogindustries.com<br><!--553d917a396414ab99785694afd51df3a8a8a3e0-->
+Back End: nick@bulldogindustries.com<br><br><!--ddf45997a7e18a25ad5f5cf222da64814dd060d5-->
+Database: sarah@bulldogindustries.com<br><!--d8b8dd5e7f000b8dea26ef8428caf38c04466b3e-->
 ```
+
+So i copy all these hashes into a file named 'hashes.txt', and run:
+```bash
+┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
+└─$ hashcat -m 100 -a 0 -o cracked_hashes.txt hashes.txt /home/j/Desktop/wordlists/SecLists/rockyou.txt
+```
+
