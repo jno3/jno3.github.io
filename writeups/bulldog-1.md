@@ -49,6 +49,47 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 17.03 seconds
 zsh: segmentation fault  nmap -p 23,80,8080 -sC -sV -oA nmap_info_detailed 192.168.56.117
 ```
-The port 8080 is serving the same thing as the port 80, so i proceed to use gobuster to bruteforce probable directories.
+The port 8080 is serving the same thing as the port 80, so I proceed to use gobuster to bruteforce probable directories.
 ```bash
-``` 
+┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
+└─$ gobuster dir -u http://192.168.56.117/ -o gobuster_info -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x html,txt,php
+===============================================================
+Gobuster v3.1.0
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:                     http://192.168.56.117/
+[+] Method:                  GET
+[+] Threads:                 10
+[+] Wordlist:                /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+[+] Negative Status codes:   404
+[+] User Agent:              gobuster/3.1.0
+[+] Extensions:              html,txt,php
+[+] Timeout:                 10s
+===============================================================
+2022/10/26 11:43:47 Starting gobuster in directory enumeration mode
+===============================================================
+/admin                (Status: 301) [Size: 0] [--> http://192.168.56.117/admin/]
+/dev                  (Status: 301) [Size: 0] [--> http://192.168.56.117/dev/]  
+/robots.txt           (Status: 200) [Size: 1071]                                
+/notice               (Status: 301) [Size: 0] [--> http://192.168.56.117/notice/]
+Progress: 63900 / 882244 (7.24%)                                                ^C
+[!] Keyboard interrupt detected, terminating.
+                                                                                 
+===============================================================
+2022/10/26 11:45:21 Finished
+===============================================================
+```
+The /dev/ directory found by gobuster seems to have interesting information on it. At surface level, this is what it looks like:
+![bulldog 2](./images/bulldog-2.png)
+But when viewing the page source, we find the following commented out:
+```html
+    <!--Need these password hashes for testing. Django's default is too complex-->
+	<!--We'll remove these in prod. It's not like a hacker can do anything with a hash-->
+	Team Lead: alan@bulldogindustries.com<br><!--6515229daf8dbdc8b89fed2e60f107433da5f2cb-->
+	Back-up Team Lead: william@bulldogindustries.com<br><br><!--38882f3b81f8f2bc47d9f3119155b05f954892fb-->
+	Front End: malik@bulldogindustries.com<br><!--c6f7e34d5d08ba4a40dd5627508ccb55b425e279-->
+	Front End: kevin@bulldogindustries.com<br><br><!--0e6ae9fe8af1cd4192865ac97ebf6bda414218a9-->
+	Back End: ashley@bulldogindustries.com<br><!--553d917a396414ab99785694afd51df3a8a8a3e0-->
+	Back End: nick@bulldogindustries.com<br><br><!--ddf45997a7e18a25ad5f5cf222da64814dd060d5-->
+	Database: sarah@bulldogindustries.com<br><!--d8b8dd5e7f000b8dea26ef8428caf38c04466b3e-->
+```
