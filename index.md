@@ -1,3 +1,4 @@
-## machine write-ups
+machine write-ups
+-----------------
 
-### [vulnhub - easy/medium] bulldog: 1
+### [[vulnhub - easy/medium] bulldog: 1](./writeups/bulldog-1.md)
