@@ -1,5 +1,8 @@
 [vulnhub - easy/medium] bulldog: 1
 ----------------------------------
 
-### Enumeration
-blablabha
+### enumeration
+```javascript
+var s = "JavaScript syntax highlighting";
+alert(s);
+```
