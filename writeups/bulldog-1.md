@@ -311,7 +311,7 @@ sudo su root
 
 ### exploitation - internal - privesc
 
-And find this piece: 'SUPERultH imatePASH SWORDyouH CANTget', which is a string that got messed up by the binary, and probably reads: 'SUPERultimatePASSWORDyouCANTget'. On the note Ashley said she was about to get it working with user Django, so, testing the password with django:
+And find this piece: 'SUPERultH imatePASH SWORDyouH CANTget', which is a string that got messed up by the binary, and probably reads: 'SUPERultimatePASSWORDyouCANTget'. On the note, Ashley said she was about to get it working with user Django, so, testing the password with django:
 
 ```
 django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ su django 
