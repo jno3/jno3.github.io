@@ -1,7 +1,7 @@
 [vulnhub - easy/medium] bulldog: 1
 ----------------------------------
 
-[link to the machine]()
+[link to the machine](https://www.vulnhub.com/entry/bulldog-1,211/)
 
 ### enumeration - external
 Since the machine's ip is already shown at its login page, I decide to check it on my browser to see if there's any useful information in it:
@@ -143,7 +143,7 @@ I seem to be able to run only the commands allowed, when I try to ping back my h
 
 ![bulldog 6](./images/bulldog-6.png)
 
-But as it is well known, we can use ';' to run one command and then the next, one, so trying "pwd; whoami":
+But, as it is well known, we can use ';' to run one command and then the next, one, so trying "pwd; whoami":
 
 ![bulldog 7](./images/bulldog-7.png)
 
@@ -163,7 +163,7 @@ But the server returns status 500, which I think means that it doesn't have php 
 pwd& which python
 ```
 
-And it returns the path to python, which can be used for a reverse shell. But it shouldn't be a one-line reverse shell because the input doesn't allow it, so I must create a 'revshell.py' file on my machine, that reads:
+And it returns the path to python, which can be used for a reverse shell. But it shouldn't be a one-line reverse shell because the input doesn't allow it (due to the semicolons), so I must create a 'revshell.py' file on my machine, that reads:
 
 ```
 ┌──(j㉿kali)-[~/Desktop/TOOLS]
