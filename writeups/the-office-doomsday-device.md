@@ -1,4 +1,4 @@
-[vulnhub - easy/medium] the office: doomsday device
+[vulnhub - easy] the office: doomsday device
 ---------------------------------------------------
 
 [link to the machine](https://www.vulnhub.com/entry/the-office-doomsday-device,627/)
@@ -603,7 +603,7 @@ $ python3 -c 'import pty; pty.spawn("/bin/bash");'
 www-data@doomsday:/var/www/koken/storage/originals/94/a1$ 
 ```
 
-Now I must enumerate directories on this machine to see what I can get. I find out that there are three users: 'creed', 'dwight' and 'michael', but i cannot do much in thoso directories and since I'm www-data, I could check the html that is being served to see if there's any info that I'm missing. The /var/www directory has three directories in it: 'html', 'html2' and 'koken'. In 'html' I find:
+Now I must enumerate directories on this machine to see what I can get. I find out that there are three users: 'creed', 'dwight' and 'michael', but i cannot do much in those directories and since I'm www-data, I could check the html that is being served to see if there's any info that I'm missing. The /var/www directory has three directories in it: 'html', 'html2' and 'koken'. In 'html' I find:
 
 ```
 www-data@doomsday:/var/www/html$ ls -la
@@ -692,7 +692,12 @@ Nmap done: 1 IP address (1 host up) scanned in 3.53 seconds
 zsh: segmentation fault  nmap -sC -sV -p 22 192.168.56.102
 ```
 
-And voila: just like that it worked, now the next logical step, is cracking the ssh password, that probably belongs to user 'michael, so that I can log in with that key:
+And voila: just like that it worked, now the next logical step, is cracking the ssh password that probably belongs to user 'michael', so that I can log in with that key:
+
+```
+┌──(j㉿kali)-[~/Desktop/vulnhub/the-office-doomsday/scripts]
+└─$ ssh2john michael > michael_hash
+```
 
 ```
 ┌──(j㉿kali)-[~/Desktop/vulnhub/the-office-doomsday/scripts]
@@ -741,7 +746,7 @@ drwx------ 2 michael michael  4096 Nov 13  2020 .ssh
 
 The hidden file .sus.txt has the seventh flag: 76a2ecd19b04acb89b7fe8c3d83296df, that leaves us with three more to go.
 
-The 'cd' command is restricted, so I must deal with what's available, so I run 'sudo -l' to see if there is any command i can run as sudo:
+The 'cd' command is restricted, so I must deal with what's available. I run 'sudo -l' to see if there is any command I can run as sudo:
 
 ```
 michael@doomsday:~$ sudo -l
@@ -753,7 +758,7 @@ User michael may run the following commands on doomsday:
     (ALL) NOPASSWD: /home/creed/defuse*
 ```
 
-I can run a file named 'defuse*' (the '*' character is a wildcard) but that file doesn't exist in creed's user, so I must upload a defuse file to it. I first create a simple 'defuse.sh' file that reads:
+I can run a file named 'defuse*' (the '\*' character is a wildcard) but that file doesn't exist in creed's user, so I must upload a defuse file to it. I first create a simple 'defuse.sh' file that reads:
 
 ```shell
 #!/bin/bash
