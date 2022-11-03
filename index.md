@@ -5,4 +5,4 @@ machine write-ups
 
 ### [[vulnhub - easy] the office: doomsday device](./writeups/the-office-doomsday-device.md)
 
-### ### [[vulnhub - easy] empire: breakout](./writeups/empire-breakout.md)
+### [[vulnhub - easy] empire: breakout](./writeups/empire-breakout.md)
