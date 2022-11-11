@@ -8,3 +8,5 @@ machine write-ups
 ### [[vulnhub - easy] empire: breakout](./writeups/empire-breakout.md)
 
 ### [[vulnhub - medium] empire: lupin one](./writeups/empire-lupin-one.md)
+
+### [[vulnhub - easy/medium] momentum: 1](./writeups/momentum-1.md)
