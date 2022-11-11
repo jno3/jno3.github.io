@@ -156,7 +156,7 @@ I pass linpeas to the machine using the pythonHTTPserver and wget, run the tool 
 redis      458  0.2  0.4  51672  9592 ?        Ssl  17:09   0:01 /usr/bin/redis-server 127.0.0.1:6379
 ```
 
-So, like that, I find out that there's Redis running internally on prot 6379. My next step is to connect to this redis server and get whatever I can out of it:
+So, like that, I find out that there's Redis running internally on port 6379. My next step is to connect to this redis server and get whatever I can out of it:
 
 ```
 auxerre@Momentum:~$ redis-cli -h 127.0.0.1
