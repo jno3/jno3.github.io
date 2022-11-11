@@ -96,7 +96,7 @@ don't worry no one will get here, it's safe to share with you my access. Its enc
 -->
 ```
 
-That's an encrypted message in the brainfuck language that reads:
+That's an encoded message in the brainfuck language that (after being decoded) reads :
 
 ```
 .2uqPEfj3D<P'a-3
