@@ -3,7 +3,6 @@
 
 [link to the machine](https://www.vulnhub.com/entry/bulldog-1,211/)
 
-### enumeration - external
 Since the machine's ip is already shown at its login page, I decide to check it on my browser to see if there's any useful information in it:
 
 ![bulldog 1](./images/bulldog-1-1.png)
@@ -249,8 +248,6 @@ Last login: Wed Sep 20 19:35:44 2017
 django@bulldog:~$ ls
 ```
 
-### enumeration - internal
-
 I snoop around on the /home folder, it has two users: /bulldogadmin and /django, I'm currently user 'django'. /bulldogadmin is accessible, and when I list its files:
 
 ```bash
@@ -306,8 +303,6 @@ sudo su root
 ;*3$"
 [RELEVANT SECTION]
 ```
-
-### exploitation - internal - privesc
 
 And find this piece: 'SUPERultH imatePASH SWORDyouH CANTget', which is a string that got messed up by the binary, and probably reads: 'SUPERultimatePASSWORDyouCANTget'. On the note, Ashley said she was about to get it working with user Django, so, testing the password with django:
 
