@@ -11,7 +11,7 @@ Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
 Nmap done: 1 IP address (0 hosts up) scanned in 3.47 seconds
 ```
 
-The host seems to be down and when I access it I'm redirected to http://precious.htb, so I change the /etc/hosts file to relate the IP to the address. After that, I run the scan against the address and get this:
+The host seems to be down and when I access it in the browser I'm redirected to http://precious.htb, so I change the /etc/hosts file to relate the IP to the address. After that, I run the scan against the address and get this:
 
 ```
 ┌──(j㉿kali)-[~/Desktop/HTB/precious]
