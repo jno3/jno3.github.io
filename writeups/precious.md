@@ -73,7 +73,7 @@ That way I get two requests on my server, one of them passing the "exp" variable
 
 ![precious 5](./images/precious-5.png)
 
-And it seems, user ruby is the one running things!!!
+And it seems user ruby is the one running things!!!
 
 So the next step is try for a reverse shell on this machine. I will first probe it to see what kind of tools it has to help me in this mission. I change the "whoami" command for "which nc", "which php" and "which python3" respectively to see if any of those are available and this is what I get:
 
