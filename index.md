@@ -12,3 +12,5 @@ machine write-ups
 ### [[vulnhub - easy/medium] momentum: 1](./writeups/momentum-1.md)
 
 ### [[vulnhub - easy/medium] bulldog: 1](./writeups/bulldog-1.md)
+
+### [[hackthebox - easy] bashed](./writeups/ica-1.md)
