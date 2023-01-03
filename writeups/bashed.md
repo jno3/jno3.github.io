@@ -25,7 +25,7 @@ After getting this information, the next thing for me to do is check up on what'
 
 ![bashed 1](./images/bashed-1.png)
 
-So it is about a web shell that can be uploaded to a website AND it was tested in the current website... it would be very convenient for me if this file was still accessible, right? I then click o the pink arrow to see what else I can get from this, and I get sent to http://10.10.10.68/single.html that looks like:
+So it is about a web shell that can be uploaded to a website AND it was tested in the current website... it would be very convenient for me if this file was still accessible, right? I then click o the pink arrow to see what else I can get from this and I get sent to http://10.10.10.68/single.html that looks like:
 
 ![bashed 2](./images/bashed-2.png)
 
@@ -70,7 +70,7 @@ Progress: 9833 / 87665 (11.22%)^C
 
 The one that stands out to me is the /dev directory, so I try to reach http://10.10.10.68/dev/ and this is what I find:
 
-[bashed 4](./images/bashed-4.png)
+![bashed 4](./images/bashed-4.png)
 
 I click on "phpbash.php" and get redirected to http://10.10.10.68/dev/phpbash.php, which is a php shell through browser. The first commands I type in are:
 
