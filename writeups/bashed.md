@@ -321,4 +321,4 @@ cat root.txt
 a0ea0563c...flag
 ```
 
-And so I get the root flag
+And like so I get the root flag
