@@ -13,4 +13,4 @@ machine write-ups
 
 ### [[vulnhub - easy/medium] bulldog: 1](./writeups/bulldog-1.md)
 
-### [[hackthebox - easy] bashed](./writeups/ica-1.md)
+### [[hackthebox - easy] bashed](./writeups/bashed.md)
