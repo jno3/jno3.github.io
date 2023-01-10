@@ -206,7 +206,7 @@ After running for a while, the following password works:
 [22][ssh] host: 192.168.56.103   login: guest   password: k1ll0r7n
 ```
 
-So I log into the machine via ssh and cant run any commands:
+So I log into the machine via ssh and can't run any commands:
 
 ```
 guest@porteus:~$ ls

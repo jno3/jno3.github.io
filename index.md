@@ -1,7 +1,7 @@
 machine write-ups
 -----------------
 
-### [[vulnhub - medium] matrix: 1](./writeups/bulldog-1.md)
+### [[vulnhub - medium] matrix: 1](./writeups/matrix-1.md)
 
 ### [[vulnhub - easy/medium] ica: 1](./writeups/ica-1.md)
 
