@@ -1,4 +1,4 @@
-[vulnhub - easy] ica: 1
+[vulnhub - easy] matrix: 1
 -----------------------
 
 The first thing I do is scan the host-only network to get the machine's ip:
