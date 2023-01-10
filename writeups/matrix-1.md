@@ -230,7 +230,7 @@ guest@porteus:~$ ls /home/guest/
 
 The directory that stands out in this listing is the "prog", so I type in "ls /home/guest/prog/" and when I press TAB it automatically fills in "ls /home/guest/prog/vi". Could that mean I'm allowed to run vi? YES! (afterwards I learn that I could have just typed in "echo $PATH" and I would've found out guest's path is /home/gues/prog).
 
-A funny thing about vi is that there's a way of running commands from inside a vi prompt, by typing ":!<COMMAND>", so I do it: enter vi command and type in ":!/bin/bash" to escape it:
+A funny thing about vi is that there's a way of running commands from inside a vi prompt, by typing ":!\[COMMAND\]", so I do it: enter vi command and type in ":!/bin/bash" to escape it:
 
 ```
 ~
